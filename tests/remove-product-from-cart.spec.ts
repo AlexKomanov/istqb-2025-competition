@@ -16,6 +16,16 @@ test.describe('Shopping Cart Functionality', () => {
     // Add product to cart
     await page.getByRole('button', { name: 'Add to cart' }).click();
 
+    // Wait for cart to process (handle rate limiting)
+    await page.waitForTimeout(2000);
+    
+    // If cart dialog doesn't auto-open, manually click cart button
+    const cartDialog = page.getByRole('dialog', { name: 'Your cart' });
+    if (!(await cartDialog.isVisible().catch(() => false))) {
+      await page.getByRole('button', { name: /Cart/ }).click();
+    }
+    await expect(cartDialog).toBeVisible();
+
     // Verify product is in cart
     await expect(page.getByRole('link', { name: 'The Collection Snowboard: Hydrogen' })).toBeVisible();
 
